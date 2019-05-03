@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mars data</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        a:link {
+            color: black;
+        }
+
+        a:visited {
+            color: black;
+        }
+
+        a:hover {
+            color: #686868;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container-fluid mt-2">
+        <div class="jumbotron text-center shadow-lg"
+            style="background: url({{ mars_data.bg_image }}) no-repeat center center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;">
+            <h1 class="display-3 font-weight-bold" style="color: white">Mission to Mars</h1>
+            <p><a class="btn btn-primary btn-lg" href="/scrape" role="button"
+                    style="background-color: #fc5e1f; border:0;">Scrape New Data</a></p>
+        </div>
+    </div>
+
+    <div class="container.fluid md-1 mx-auto">
+        <div class="row">
+            <div class="col col-lg-8 col-12">
+                <div class="card p-3 px-4 ml-3">
+                    <div class="card-text">
+                        <h3 class="font-weight-bold">Current Mars Weather</h3>
+                        <p>{{ mars_data.weather }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-lg-4 col-12">
+                <div class="card border-0 ml-3">
+                    <h4 class="font-weight-bold mb-3">Mars Facts</h4>
+                    {{ mars_data.facts|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="container.fluid mt-n5">
+        <div class="row">
+            <div class="col col-lg-8 col-12 mt-n5">
+                <div class="LrgImage mt-n5">
+                    <div class="card border-0 ml-3">
+                        <div class="card-body">
+                            <h2 class="card-text mx-0">Featured Image</h2>
+                        </div>
+                        <img src="{{ mars_data.featured_image }}" alt="Mars" width="100%" class="card-img-bottom">
+                    </div>
+                </div>
+            </div>
+            <div class="col col-lg-4 col-12 mt-3">
+                <div class="card mx-auto mt-5">
+                    <div class="container mx-auto overflow-auto">
+                        <h2 class="font-weight-normal mb-5 pl-2">Latest News</h2>
+
+                        {% for article in mars_data.news %}
+                        <ul>
+                            <div class="container mx-auto">
+                                <div class="card mx-auto border-0">
+                                    <a href="{{ article._url }}" style=":hover.color: black;">
+                                        <h4 class="font-weight-bold">{{ article.title }}</h4>
+                                    </a>
+                                    <p>{{ article.text }}</p>
+                                </div>
+                            </div>
+                        </ul>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br>
+        <br>
+        <br>
+
+        <div class="container.fluid mx-5">
+            <h2 class="text-center">Mars Hemispheres</h2>
+            <div class="row mx-auto">
+
+                {% for im in mars_data.hemisphere_images %}
+                <div class="col col-lg-6 mt-5">
+                    <div class="card">
+                        <img src="{{ im.img_url }}" alt="{{ im.title }}" class="card-img-top" width="100%">
+                        <div class="card-body mx-auto">
+                            <h3 class="card-text font-weight-bold">{{ im.title.strip(' Enhanced') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
