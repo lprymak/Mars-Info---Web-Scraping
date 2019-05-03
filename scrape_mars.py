@@ -68,8 +68,15 @@ def scrape():
         if tw.a['href'] == "/MarsWxReport" :
             marsWx_tweets.append(tw)
 
-    wx = marsWx_tweets[0].find('p', class_='tweet-text').get_text().replace('\n', ' ')
-    mars_weather = wx
+    wx = marsWx_tweets[0].find('p', class_='tweet-text')
+    
+    # Remove picture link text from full text
+    if wx.a.text:
+        wx = wx.text.strip(wx.a.text)
+    else:
+        wx = wx.text
+
+    mars_weather = wx.replace('\n', ' ')
 
 # # Mars Facts
     url = "https://space-facts.com/mars/"
@@ -80,20 +87,10 @@ def scrape():
 
     table = soup.find_all('table', id="tablepress-mars")[0]
 
-    table = f"""{table}"""
-    display_html(table, raw=True)
+    table_str = f"""{table}"""
+    table_str = table_str.replace('\n', '')
 
-    dfs = pd.read_html(table)
-    tbl = dfs[0]
-    tbl = tbl.set_index(0)
-
-    html_table = tbl.to_html()
-    html_table = html_table.replace('\n', '')
-
-    tbl_strgs = html_table.split("""  <thead>    <tr style="text-align: right;">      <th></th>      <th>1</th>    </tr>    <tr>      <th>0</th>      <th></th>    </tr>  </thead>""")
-    
-    html_table = tbl_strgs[0]+tbl_strgs[1]
-    html_table = html_table.replace("""class="dataframe">""", """class="dataframe table-hover table-light table-borderless">""")
+    html_table = table_str.replace('''class="tablepress tablepress-id-mars''', '''class="tablepress tablepress-id-mars table-hover table-light table-borderless''')
 
 # # Hemisphere Images
     url = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars/"
@@ -102,23 +99,24 @@ def scrape():
     html = browser.html
     soup = bs(html, 'html.parser')
 
-    images = soup.find_all('div', class_='item')
+    images_lnks = soup.find_all('div', class_='item')
 
-    lnks = [images[x].a['href'] for x in range(0, len(images))]
+    hrefs = [images_lnks[x].a['href'] for x in range (0, len(images_lnks))]
     
-    image_links = []
-    for x in lnks:
-        url = 'https://astrogeology.usgs.gov/' + x
+    image_urls = []
+    for endpoint in hrefs:
+        url = 'https://astrogeology.usgs.gov/' + endpoint
         browser.visit(url)
         
         html = browser.html
         soup = bs(html, 'html.parser')
 
-        image_links.append("https://astrogeology.usgs.gov" + soup.find('img', class_='wide-image')['src'])
+        image_urls.append("https://astrogeology.usgs.gov" + soup.find('img', class_='wide-image')['src'])
+
 
     hemisphere_image_urls = []
-    for x in range(0, len(image_links)):
-        hemisphere_image_urls.append({'title': images[x].h3.text, 'img_url': image_links[x]})
+    for x in range(0, len(images_lnks)):
+        hemisphere_image_urls.append({'title': images_lnks[x].h3.text, 'img_url': image_urls[x]})
 
     mars_data = {'news': news, 'weather':mars_weather, 'featured_image':featured_image_url, 'bg_image':bg_url, 'facts':html_table, 'hemisphere_images':hemisphere_image_urls}
     browser.quit()
